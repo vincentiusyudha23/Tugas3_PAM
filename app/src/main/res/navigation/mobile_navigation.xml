@@ -26,7 +26,7 @@
     <fragment
         android:id="@+id/nav_skill"
         android:name="com.example.pam.SkillListFragment"
-        android:label="Skills"
+        android:label="@string/menu_skill"
         tools:layout="@layout/fragment_skill_list" >
         <action
             android:id="@+id/action_nak_skill_to_skill_detail"
@@ -37,7 +37,7 @@
     <fragment
         android:id="@+id/nav_detail"
         android:name="com.example.pam.DetailSkillFragment"
-        android:label="Skill Detail"
+        android:label="@string/menu_skillDetail"
         tools:layout="@layout/fragment_detail_skill"
         >
         <argument

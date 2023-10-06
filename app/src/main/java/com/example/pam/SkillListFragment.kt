@@ -2,6 +2,8 @@ package com.example.pam
 
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pam.databinding.FragmentSkillListBinding
-
-import com.example.pam.model.SkillModel
 import java.util.Locale
 
 
@@ -21,7 +21,8 @@ class SkillListFragment : Fragment() {
 
     private var _binding : FragmentSkillListBinding? = null
     lateinit var rvSkill : RecyclerView
-
+    lateinit var adapter : SkillAdapter
+    private lateinit var ArraySkillList : ArrayList<String>
 
     private val binding get() = _binding!!
 
@@ -33,17 +34,37 @@ class SkillListFragment : Fragment() {
         _binding = FragmentSkillListBinding.inflate(inflater,container, false)
 
         val root: View = binding.root
+        buildRecyclerView()
+        buildSearchView()
+
+        return root
+    }
+
+    private fun buildRecyclerView(){
+
         val recyclerView = binding.rvSkill
-        val searchView = binding.searchskill
         val lm = LinearLayoutManager(activity)
         lm.orientation = LinearLayoutManager.VERTICAL
 
-        val adapterSkill = SkillAdapter(ArraySkill,activity){
+        val skills = resources.getStringArray(R.array.string_array_skill)
+        skills.sort()
+
+        ArraySkillList = arrayListOf()
+        ArraySkillList.addAll(skills)
+
+        adapter = SkillAdapter(ArraySkillList){
             navigateToDetail(it)
         }
+
+
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = lm
-        recyclerView.adapter = adapterSkill
+        recyclerView.adapter = adapter
+    }
+
+    private fun buildSearchView(){
+
+        val searchView = binding.searchskill
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -51,77 +72,25 @@ class SkillListFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if(newText != null){
-                    val filteredList = ArrayList<SkillModel>()
-                    for (i in ArraySkill){
-                        if(i.namaSkill!!.lowercase(Locale.ROOT).contains(newText)){
-                            filteredList.add(i)
+                Handler(Looper.getMainLooper()).removeCallbacksAndMessages(null)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if(newText != null){
+                        val filteredList = ArrayList<String>()
+                        for (item in ArraySkillList){
+                            if(item.lowercase(Locale.ROOT).contains(newText)){
+                                filteredList.add(item)
+                            }
+                        }
+                        if(filteredList.isEmpty()){
+                            Toast.makeText(requireContext(), "No Data Found", Toast.LENGTH_SHORT).show()
+                        }else{
+                            adapter.setfilteredList(filteredList)
                         }
                     }
-                    if(filteredList.isEmpty()){
-                        Toast.makeText(requireContext(), "No Data Found", Toast.LENGTH_SHORT).show()
-                    }else{
-                        adapterSkill.setfilteredList(filteredList)
-                    }
-                }
-
-                return true
+                },500)
+                return false
             }
-
         })
-
-
-        return root
-    }
-
-
-
-    val ArraySkill : ArrayList<SkillModel>get(){
-
-        val arrayskill = ArrayList<SkillModel>()
-
-        val skill1 = SkillModel()
-        skill1.namaSkill = "Kotlin"
-
-        val skill2 = SkillModel()
-        skill2.namaSkill = "React"
-
-        val skill3 = SkillModel()
-        skill3.namaSkill = "React Native"
-
-        val skill4 = SkillModel()
-        skill4.namaSkill = "Python"
-
-        val skill5 = SkillModel()
-        skill5.namaSkill = "HTML"
-
-        val skill6 = SkillModel()
-        skill6.namaSkill = "CSS"
-
-        val skill7 = SkillModel()
-        skill7.namaSkill = "JavaScript"
-
-        val skill8 = SkillModel()
-        skill8.namaSkill = "Kotlin"
-
-        val skill9 = SkillModel()
-        skill9.namaSkill = "Java"
-
-        val skill10 = SkillModel()
-        skill10.namaSkill = "PHP"
-
-        arrayskill.add(skill1)
-        arrayskill.add(skill2)
-        arrayskill.add(skill3)
-        arrayskill.add(skill4)
-        arrayskill.add(skill5)
-        arrayskill.add(skill6)
-        arrayskill.add(skill7)
-        arrayskill.add(skill8)
-        arrayskill.add(skill9)
-        arrayskill.add(skill10)
-
-        return arrayskill
     }
 
     override fun onDestroyView() {
@@ -135,7 +104,5 @@ class SkillListFragment : Fragment() {
         bundle.putString("extra_name", extraName)
         findNavController().navigate(R.id.action_nak_skill_to_skill_detail, bundle)
     }
-
-
 
 }

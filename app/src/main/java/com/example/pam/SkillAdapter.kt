@@ -1,49 +1,50 @@
 package com.example.pam
 
-import android.app.Activity
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.pam.model.SkillModel
+import com.example.pam.databinding.ItemSkillListBinding
+
 
 class SkillAdapter (
-    var data: ArrayList<SkillModel>,
-    var context: Activity?,
-    var onItemClick: (String) -> Unit
+    data: ArrayList<String>,
+    val onItemClick: (String) -> Unit
     ): RecyclerView.Adapter<SkillAdapter.MyViewHolder>(){
 
+    private var filteredSkill: ArrayList<String>
 
-    class MyViewHolder(view: View): RecyclerView.ViewHolder(view){
-        val namaSkill = view.findViewById<TextView>(R.id.tv_skill)
+    init {
+        filteredSkill = data
     }
 
-    fun setfilteredList(data: ArrayList<SkillModel>){
-        this.data = data
+    inner class MyViewHolder(private val binding: ItemSkillListBinding): RecyclerView.ViewHolder(binding.root){
+        fun bind(text: String){
+            binding.tvSkill.text = text
+            binding.root.setOnClickListener{
+                onItemClick(text)
+            }
+        }
+    }
+
+    fun setfilteredList(data: ArrayList<String>){
+        filteredSkill = data
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val view : View = LayoutInflater.from(parent.context).inflate(R.layout.item_skill_list, parent, false)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): MyViewHolder {
+        val view = ItemSkillListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(view)
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        return filteredSkill.size
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val skillName = data[position].namaSkill
-
-        holder.namaSkill.text = skillName
-
-        holder.itemView.setOnClickListener{
-            holder.itemView.setBackgroundColor(Color.BLUE)
-            if (skillName != null) {
-                onItemClick(skillName)
-            }
-        }
+        holder.bind(filteredSkill[position])
     }
 }
